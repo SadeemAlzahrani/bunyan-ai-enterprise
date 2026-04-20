@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import SiteLayout from "@/components/site/SiteLayout";
-import AppShell from "@/components/app/AppShell";
+import TranslatedAppShell from "@/components/app/TranslatedAppShell";
 
 import Home from "@/pages/site/Home";
 import Solutions from "@/pages/site/Solutions";
@@ -20,9 +20,14 @@ import PlansPage from "@/pages/admin/PlansPage";
 import UsagePage from "@/pages/admin/UsagePage";
 import AuditPage from "@/pages/admin/AuditPage";
 import SecuritySettingsPage from "@/pages/admin/SecuritySettingsPage";
-import CompanyWorkspace from "@/pages/company/CompanyWorkspace";
-import ProjectsDashboard from "@/pages/projects/ProjectsDashboard";
-import EngineerDashboard from "@/pages/engineer/EngineerDashboard";
+
+import WorkspaceDashboard from "@/pages/workspace/WorkspaceDashboard";
+import WorkspaceUsersPage from "@/pages/workspace/UsersPage";
+import WorkspaceProjectsPage from "@/pages/workspace/ProjectsPage";
+import WorkspaceContractsPage from "@/pages/workspace/ContractsPage";
+import WorkspaceIssuesPage from "@/pages/workspace/IssuesPage";
+import WorkspaceReportsPage from "@/pages/workspace/ReportsPage";
+import WorkspaceSettingsPage from "@/pages/workspace/SettingsPage";
 
 import NotFound from "./pages/NotFound";
 
@@ -50,16 +55,16 @@ const App = () => (
           {/* Super Admin Portal */}
           <Route
             element={
-              <AppShell
+              <TranslatedAppShell
                 expectedRole="super_admin"
                 workspaceName="Bunyan Platform"
-                navItems={[
-                  { to: "/admin", label: "Dashboard" },
-                  { to: "/admin/tenants", label: "Tenants" },
-                  { to: "/admin/plans", label: "Plans" },
-                  { to: "/admin/usage", label: "Usage" },
-                  { to: "/admin/audit", label: "Audit" },
-                  { to: "/admin/security", label: "Security" },
+                navSpec={[
+                  { to: "/admin", labelKey: "adminNav.dashboard" },
+                  { to: "/admin/tenants", labelKey: "adminNav.tenants" },
+                  { to: "/admin/plans", labelKey: "adminNav.plans" },
+                  { to: "/admin/usage", labelKey: "adminNav.usage" },
+                  { to: "/admin/audit", labelKey: "adminNav.audit" },
+                  { to: "/admin/security", labelKey: "adminNav.security" },
                 ]}
               />
             }
@@ -72,59 +77,31 @@ const App = () => (
             <Route path="/admin/security" element={<SecuritySettingsPage />} />
           </Route>
 
-          {/* Company Admin */}
+          {/* Shared Company Workspace — gated per-role via permissions */}
           <Route
             element={
-              <AppShell
-                expectedRole="company_admin"
+              <TranslatedAppShell
+                expectedRole={["company_admin", "project_manager", "project_engineer"]}
                 workspaceName="NorthBuild Construction"
-                navItems={[
-                  { to: "/workspace", label: "Overview" },
-                  { to: "/workspace", label: "Team" },
-                  { to: "/workspace", label: "Projects" },
-                  { to: "/workspace", label: "Compliance" },
-                  { to: "/workspace", label: "Settings" },
+                navSpec={[
+                  { to: "/workspace", labelKey: "workspaceNav.overview", permission: "viewDashboard" },
+                  { to: "/workspace/users", labelKey: "workspaceNav.users", permission: "viewUsers" },
+                  { to: "/workspace/projects", labelKey: "workspaceNav.projects", permission: "viewProjects" },
+                  { to: "/workspace/contracts", labelKey: "workspaceNav.contracts", permission: "viewContracts" },
+                  { to: "/workspace/issues", labelKey: "workspaceNav.issues", permission: "viewIssues" },
+                  { to: "/workspace/reports", labelKey: "workspaceNav.reports", permission: "viewReports" },
+                  { to: "/workspace/settings", labelKey: "workspaceNav.settings", permission: "viewSettings" },
                 ]}
               />
             }
           >
-            <Route path="/workspace" element={<CompanyWorkspace />} />
-          </Route>
-
-          {/* Project Manager */}
-          <Route
-            element={
-              <AppShell
-                expectedRole="project_manager"
-                workspaceName="NorthBuild Construction"
-                navItems={[
-                  { to: "/projects", label: "Dashboard" },
-                  { to: "/projects", label: "Projects" },
-                  { to: "/projects", label: "Risks" },
-                  { to: "/projects", label: "Reports" },
-                ]}
-              />
-            }
-          >
-            <Route path="/projects" element={<ProjectsDashboard />} />
-          </Route>
-
-          {/* Project Engineer */}
-          <Route
-            element={
-              <AppShell
-                expectedRole="project_engineer"
-                workspaceName="NorthBuild Construction"
-                navItems={[
-                  { to: "/engineer", label: "My Queue" },
-                  { to: "/engineer", label: "Evaluations" },
-                  { to: "/engineer", label: "Findings" },
-                  { to: "/engineer", label: "Reports" },
-                ]}
-              />
-            }
-          >
-            <Route path="/engineer" element={<EngineerDashboard />} />
+            <Route path="/workspace" element={<WorkspaceDashboard />} />
+            <Route path="/workspace/users" element={<WorkspaceUsersPage />} />
+            <Route path="/workspace/projects" element={<WorkspaceProjectsPage />} />
+            <Route path="/workspace/contracts" element={<WorkspaceContractsPage />} />
+            <Route path="/workspace/issues" element={<WorkspaceIssuesPage />} />
+            <Route path="/workspace/reports" element={<WorkspaceReportsPage />} />
+            <Route path="/workspace/settings" element={<WorkspaceSettingsPage />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

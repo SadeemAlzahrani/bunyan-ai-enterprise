@@ -4,6 +4,7 @@ import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { getSession, logout, roleLabel, type Role } from "@/lib/auth";
+import PreferenceToggles from "@/components/PreferenceToggles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface NavItem { to: string; label: string }
+import type { Permission } from "@/lib/permissions";
+import { can } from "@/lib/permissions";
+
+interface NavItem { to: string; label: string; permission?: Permission }
 
 interface AppShellProps {
   navItems: NavItem[];
@@ -41,6 +45,8 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
 
   if (!session) return null;
 
+  const visibleNav = navItems.filter((n) => !n.permission || can(session.role, n.permission));
+
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
@@ -53,7 +59,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
           <div className="flex items-center gap-8">
-            <Logo to={navItems[0]?.to ?? "/"} />
+            <Logo to={visibleNav[0]?.to ?? "/"} />
             <div className="hidden lg:flex items-center gap-1 text-xs">
               <span className="text-muted-foreground">Workspace</span>
               <span className="text-muted-foreground">/</span>
@@ -62,7 +68,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
           </div>
 
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
+            {visibleNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -79,12 +85,13 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
           </nav>
 
           <div className="flex items-center gap-2">
+            <PreferenceToggles />
             <Button variant="ghost" size="icon" className="rounded-full hidden sm:inline-flex">
               <Search className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" className="rounded-full relative">
               <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-accent" />
+              <span className="absolute top-2 end-2 h-2 w-2 rounded-full bg-accent" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -114,7 +121,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
         {/* mobile nav */}
         <div className="md:hidden border-t border-border overflow-x-auto">
           <div className="flex gap-1 px-4 py-2">
-            {navItems.map((item) => (
+            {visibleNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
