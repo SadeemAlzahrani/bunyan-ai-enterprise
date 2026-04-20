@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-
-const nav = [
-  { to: "/solutions", label: "Solutions" },
-  { to: "/security", label: "Security" },
-  { to: "/pricing", label: "Pricing" },
-  { to: "/contact", label: "Contact Sales" },
-];
+import PreferenceToggles from "@/components/PreferenceToggles";
 
 const SiteHeader = () => {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const { t } = useTranslation();
+
+  const nav = [
+    { to: "/solutions", label: t("marketingNav.solutions") },
+    { to: "/security", label: t("marketingNav.security") },
+    { to: "/pricing", label: t("marketingNav.pricing") },
+    { to: "/contact", label: t("marketingNav.contact") },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -35,16 +38,20 @@ const SiteHeader = () => {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-2">
+          <PreferenceToggles />
           <Button asChild variant="ghost" size="sm" className="rounded-full">
-            <Link to="/login">Login</Link>
+            <Link to="/login">{t("marketingNav.login")}</Link>
           </Button>
           <Button asChild size="sm" className="rounded-full bg-gradient-accent hover:opacity-95 text-accent-foreground border-0 shadow-card">
-            <Link to="/request-demo">Request Demo</Link>
+            <Link to="/request-demo">{t("marketingNav.requestDemo")}</Link>
           </Button>
         </div>
-        <button className="md:hidden p-2 rounded-lg hover:bg-secondary" onClick={() => setOpen(!open)} aria-label="Toggle menu">
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="md:hidden flex items-center gap-1">
+          <PreferenceToggles />
+          <button className="p-2 rounded-lg hover:bg-secondary" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="md:hidden border-t border-border bg-background">
@@ -56,10 +63,10 @@ const SiteHeader = () => {
             ))}
             <div className="flex gap-2 pt-2 border-t border-border mt-2">
               <Button asChild variant="outline" className="flex-1 rounded-full">
-                <Link to="/login">Login</Link>
+                <Link to="/login">{t("marketingNav.login")}</Link>
               </Button>
               <Button asChild className="flex-1 rounded-full bg-gradient-accent text-accent-foreground border-0">
-                <Link to="/request-demo">Request Demo</Link>
+                <Link to="/request-demo">{t("marketingNav.requestDemo")}</Link>
               </Button>
             </div>
           </div>
@@ -70,3 +77,4 @@ const SiteHeader = () => {
 };
 
 export default SiteHeader;
+
