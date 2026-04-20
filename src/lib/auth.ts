@@ -50,8 +50,8 @@ export const roleHome = (role: Role): string => {
   switch (role) {
     case "super_admin": return "/admin";
     case "company_admin": return "/workspace";
-    case "project_manager": return "/projects";
-    case "project_engineer": return "/engineer";
+    case "project_manager": return "/workspace/projects";
+    case "project_engineer": return "/workspace/issues";
   }
 };
 
