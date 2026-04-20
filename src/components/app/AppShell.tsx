@@ -4,6 +4,7 @@ import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { getSession, logout, roleLabel, type Role } from "@/lib/auth";
+import PreferenceToggles from "@/components/PreferenceToggles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -79,12 +80,13 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
           </nav>
 
           <div className="flex items-center gap-2">
+            <PreferenceToggles />
             <Button variant="ghost" size="icon" className="rounded-full hidden sm:inline-flex">
               <Search className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" className="rounded-full relative">
               <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-accent" />
+              <span className="absolute top-2 end-2 h-2 w-2 rounded-full bg-accent" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
