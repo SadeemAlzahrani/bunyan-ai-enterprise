@@ -14,7 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface NavItem { to: string; label: string }
+import type { Permission } from "@/lib/permissions";
+import { can } from "@/lib/permissions";
+
+interface NavItem { to: string; label: string; permission?: Permission }
 
 interface AppShellProps {
   navItems: NavItem[];
@@ -41,6 +44,8 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
   }, [expectedRole, navigate]);
 
   if (!session) return null;
+
+  const visibleNav = navItems.filter((n) => !n.permission || can(session.role, n.permission));
 
   const handleLogout = () => {
     logout();
