@@ -59,7 +59,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
           <div className="flex items-center gap-8">
-            <Logo to={navItems[0]?.to ?? "/"} />
+            <Logo to={visibleNav[0]?.to ?? "/"} />
             <div className="hidden lg:flex items-center gap-1 text-xs">
               <span className="text-muted-foreground">Workspace</span>
               <span className="text-muted-foreground">/</span>
@@ -68,7 +68,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
           </div>
 
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
+            {visibleNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -121,7 +121,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
         {/* mobile nav */}
         <div className="md:hidden border-t border-border overflow-x-auto">
           <div className="flex gap-1 px-4 py-2">
-            {navItems.map((item) => (
+            {visibleNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
