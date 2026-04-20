@@ -15,6 +15,11 @@ import RequestDemo from "@/pages/site/RequestDemo";
 import Login from "@/pages/auth/Login";
 
 import SuperAdminDashboard from "@/pages/admin/SuperAdminDashboard";
+import TenantsPage from "@/pages/admin/TenantsPage";
+import PlansPage from "@/pages/admin/PlansPage";
+import UsagePage from "@/pages/admin/UsagePage";
+import AuditPage from "@/pages/admin/AuditPage";
+import SecuritySettingsPage from "@/pages/admin/SecuritySettingsPage";
 import CompanyWorkspace from "@/pages/company/CompanyWorkspace";
 import ProjectsDashboard from "@/pages/projects/ProjectsDashboard";
 import EngineerDashboard from "@/pages/engineer/EngineerDashboard";
@@ -42,23 +47,29 @@ const App = () => (
           {/* Auth */}
           <Route path="/login" element={<Login />} />
 
-          {/* Super Admin */}
+          {/* Super Admin Portal */}
           <Route
             element={
               <AppShell
                 expectedRole="super_admin"
                 workspaceName="Bunyan Platform"
                 navItems={[
-                  { to: "/admin", label: "Overview" },
-                  { to: "/admin", label: "Tenants" },
-                  { to: "/admin", label: "Users" },
-                  { to: "/admin", label: "Audit" },
-                  { to: "/admin", label: "Settings" },
+                  { to: "/admin", label: "Dashboard" },
+                  { to: "/admin/tenants", label: "Tenants" },
+                  { to: "/admin/plans", label: "Plans" },
+                  { to: "/admin/usage", label: "Usage" },
+                  { to: "/admin/audit", label: "Audit" },
+                  { to: "/admin/security", label: "Security" },
                 ]}
               />
             }
           >
             <Route path="/admin" element={<SuperAdminDashboard />} />
+            <Route path="/admin/tenants" element={<TenantsPage />} />
+            <Route path="/admin/plans" element={<PlansPage />} />
+            <Route path="/admin/usage" element={<UsagePage />} />
+            <Route path="/admin/audit" element={<AuditPage />} />
+            <Route path="/admin/security" element={<SecuritySettingsPage />} />
           </Route>
 
           {/* Company Admin */}
