@@ -1,9 +1,6 @@
-import { getSession, type Role } from "@/lib/auth";
+import type { Role } from "@/lib/auth";
 
 // Permission map for the Company Workspace.
-// Engineers see issues + reports (read-only) only.
-// Managers see projects, contracts, issues, reports (with approve actions).
-// Company admins see everything plus users + settings.
 export const PERMISSIONS = {
   viewDashboard: ["company_admin", "project_manager"] as Role[],
   viewUsers: ["company_admin"] as Role[],
@@ -23,9 +20,7 @@ export const PERMISSIONS = {
 
 export type Permission = keyof typeof PERMISSIONS;
 
-export const can = (role: Role | undefined, perm: Permission): boolean => {
+export const can = (role: Role | undefined | null, perm: Permission): boolean => {
   if (!role) return false;
   return (PERMISSIONS[perm] as readonly Role[]).includes(role);
 };
-
-export const useCurrentRole = (): Role | undefined => getSession()?.role;
