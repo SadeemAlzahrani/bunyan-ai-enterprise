@@ -1,19 +1,27 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Building2, ShieldCheck, FileSearch, BarChart3, Cpu, Lock, Globe2, CheckCircle2, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-
-const features = [
-  { icon: FileSearch, title: "AI Building Evaluation", desc: "Computer vision and ML models assess structural, MEP, and finishing quality from drawings, BIM and site photos." },
-  { icon: ShieldCheck, title: "Contract Compliance", desc: "Automated clause-by-clause verification of deliverables against the master contract — with full audit trail." },
-  { icon: BarChart3, title: "Portfolio Intelligence", desc: "Real-time KPIs across every project, every site — cost variance, schedule risk, and quality scores in one view." },
-  { icon: Cpu, title: "Workflow Automation", desc: "Site reports, RFIs, snag lists and approvals routed automatically to the right engineer or PM." },
-  { icon: Lock, title: "Tenant Isolation", desc: "Each company workspace is fully isolated. Data, models, and access logs never cross tenant boundaries." },
-  { icon: Globe2, title: "Built for Scale", desc: "Trusted by enterprise developers managing 10 to 10,000 active projects across multiple regions." },
-];
 
 const logos = ["NorthBuild", "Sahara Dev", "Atlas Engineering", "Meridian Group", "Cedar & Stone", "Vanguard Realty"];
 
 const Home = () => {
+  const { t } = useTranslation();
+  const features = [
+    { icon: FileSearch, title: t("home.features.f1Title"), desc: t("home.features.f1Desc") },
+    { icon: ShieldCheck, title: t("home.features.f2Title"), desc: t("home.features.f2Desc") },
+    { icon: BarChart3, title: t("home.features.f3Title"), desc: t("home.features.f3Desc") },
+    { icon: Cpu, title: t("home.features.f4Title"), desc: t("home.features.f4Desc") },
+    { icon: Lock, title: t("home.features.f5Title"), desc: t("home.features.f5Desc") },
+    { icon: Globe2, title: t("home.features.f6Title"), desc: t("home.features.f6Desc") },
+  ];
+  const archPoints = [
+    t("home.architecturePoints.p1"),
+    t("home.architecturePoints.p2"),
+    t("home.architecturePoints.p3"),
+    t("home.architecturePoints.p4"),
+  ];
+
   return (
     <>
       {/* Hero */}
@@ -24,25 +32,25 @@ const Home = () => {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/15 text-xs font-medium animate-fade-in">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              Enterprise AI for the built environment
+              {t("home.badge")}
             </div>
             <h1 className="mt-6 font-display font-bold text-4xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight animate-fade-up">
-              Evaluate every building.<br />
-              <span className="text-accent">Enforce every contract.</span>
+              {t("home.heroTitle1")}<br />
+              <span className="text-accent">{t("home.heroTitle2")}</span>
             </h1>
             <p className="mt-6 text-lg md:text-xl text-primary-foreground/75 max-w-2xl leading-relaxed animate-fade-up" style={{ animationDelay: "0.1s" }}>
-              Bunyan AI is the building evaluation and contract compliance platform built for construction enterprises, real-estate developers, and engineering consultants.
+              {t("home.heroDesc")}
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-3 animate-fade-up" style={{ animationDelay: "0.2s" }}>
               <Button asChild size="lg" className="rounded-full bg-accent hover:bg-accent/90 text-accent-foreground border-0 h-12 px-7 text-base shadow-glow">
-                <Link to="/request-demo">Request a Demo <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
+                <Link to="/request-demo">{t("home.requestDemo")} <ArrowRight className="ms-1.5 h-4 w-4 rtl:rotate-180" /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full h-12 px-7 text-base bg-white/5 hover:bg-white/10 border-white/20 text-primary-foreground hover:text-primary-foreground">
-                <Link to="/contact">Talk to Sales</Link>
+                <Link to="/contact">{t("home.talkToSales")}</Link>
               </Button>
             </div>
             <p className="mt-6 text-xs text-primary-foreground/50 flex items-center gap-2 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-              <Lock className="h-3 w-3" /> Access by invitation only · No public signup
+              <Lock className="h-3 w-3" /> {t("home.invitationOnly")}
             </p>
           </div>
         </div>
@@ -51,7 +59,7 @@ const Home = () => {
       {/* Logos */}
       <section className="border-y border-border bg-background py-10">
         <div className="container">
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium mb-6">Trusted by enterprise builders</p>
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium mb-6">{t("home.trustedBy")}</p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
             {logos.map((l) => (
               <span key={l} className="font-display font-semibold text-muted-foreground/70 text-sm md:text-base tracking-tight">{l}</span>
@@ -63,10 +71,10 @@ const Home = () => {
       {/* Features */}
       <section className="container py-24 md:py-32">
         <div className="max-w-2xl">
-          <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold">The Platform</span>
-          <h2 className="mt-3 font-display font-bold text-3xl md:text-5xl tracking-tight">One system for evaluation, compliance, and oversight</h2>
+          <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold">{t("home.platformLabel")}</span>
+          <h2 className="mt-3 font-display font-bold text-3xl md:text-5xl tracking-tight">{t("home.platformTitle")}</h2>
           <p className="mt-4 text-muted-foreground text-lg leading-relaxed">
-            Bunyan AI replaces the patchwork of spreadsheets, PDF reviews, and manual site reports with a unified, AI-driven workflow.
+            {t("home.platformDesc")}
           </p>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -86,18 +94,13 @@ const Home = () => {
       <section className="bg-secondary/40 border-y border-border py-24 md:py-32">
         <div className="container grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold">Architecture</span>
-            <h2 className="mt-3 font-display font-bold text-3xl md:text-5xl tracking-tight">Multi-tenant by design.<br />Isolated by default.</h2>
+            <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold">{t("home.architectureLabel")}</span>
+            <h2 className="mt-3 font-display font-bold text-3xl md:text-5xl tracking-tight">{t("home.architectureTitle1")}<br />{t("home.architectureTitle2")}</h2>
             <p className="mt-4 text-muted-foreground text-lg leading-relaxed">
-              Every client company runs in its own dedicated workspace. Data, AI models, audit logs, and user access are completely separated — never shared, never co-mingled.
+              {t("home.architectureDesc")}
             </p>
             <ul className="mt-8 space-y-3">
-              {[
-                "Dedicated workspace per company",
-                "Row-level security on every record",
-                "Per-tenant audit trail and access logs",
-                "Region-pinned data residency available",
-              ].map((p) => (
+              {archPoints.map((p) => (
                 <li key={p} className="flex items-start gap-3 text-sm">
                   <CheckCircle2 className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                   <span>{p}</span>
@@ -114,7 +117,7 @@ const Home = () => {
                     <Building2 className="h-6 w-6 text-accent" />
                     <div>
                       <p className="text-primary-foreground font-display font-semibold text-sm">{name}</p>
-                      <p className="text-primary-foreground/50 text-xs">Isolated workspace</p>
+                      <p className="text-primary-foreground/50 text-xs">{t("home.isolatedWorkspace")}</p>
                     </div>
                   </div>
                 ))}
@@ -129,16 +132,16 @@ const Home = () => {
         <div className="rounded-3xl bg-gradient-hero p-12 md:p-16 text-center text-primary-foreground relative overflow-hidden shadow-elevated">
           <div className="absolute inset-0 bg-gradient-mesh opacity-50" />
           <div className="relative max-w-2xl mx-auto">
-            <h2 className="font-display font-bold text-3xl md:text-5xl tracking-tight">Ready to see Bunyan AI in your workflow?</h2>
+            <h2 className="font-display font-bold text-3xl md:text-5xl tracking-tight">{t("home.ctaTitle")}</h2>
             <p className="mt-4 text-primary-foreground/75 text-lg">
-              Book a 30-minute walkthrough with our solutions team. We'll tailor the demo to your project portfolio.
+              {t("home.ctaDesc")}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="rounded-full bg-accent hover:bg-accent/90 text-accent-foreground border-0 h-12 px-7 shadow-glow">
-                <Link to="/request-demo">Request Demo</Link>
+                <Link to="/request-demo">{t("marketingNav.requestDemo")}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full h-12 px-7 bg-white/5 hover:bg-white/10 border-white/20 text-primary-foreground hover:text-primary-foreground">
-                <Link to="/contact">Contact Sales</Link>
+                <Link to="/contact">{t("home.contactSales")}</Link>
               </Button>
             </div>
           </div>
