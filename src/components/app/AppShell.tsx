@@ -63,7 +63,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
             <div className="hidden lg:flex items-center gap-1 text-xs">
               <span className="text-muted-foreground">Workspace</span>
               <span className="text-muted-foreground">/</span>
-              <span className="font-semibold text-foreground">{workspaceName}</span>
+              <span className="font-semibold text-foreground">{displayWorkspace}</span>
             </div>
           </div>
 
@@ -105,9 +105,9 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
               <DropdownMenuContent align="end" className="w-64 rounded-2xl">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-semibold">{session.name}</span>
-                    <span className="text-xs text-muted-foreground">{session.email}</span>
-                    <span className="text-xs text-accent font-medium mt-1">{roleLabel(session.role)}</span>
+                    <span className="text-sm font-semibold">{user.name}</span>
+                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                    <span className="text-xs text-accent font-medium mt-1">{roleLabel(user.role)}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
