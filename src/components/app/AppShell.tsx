@@ -1,9 +1,10 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { getSession, logout, roleLabel, type Role } from "@/lib/auth";
+import { signOut, roleLabel, type Role } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 import PreferenceToggles from "@/components/PreferenceToggles";
 import {
   DropdownMenu,
@@ -27,32 +28,31 @@ interface AppShellProps {
 
 const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
   const navigate = useNavigate();
-  const [session, setSession] = useState(() => getSession());
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const s = getSession();
-    if (!s) {
+    if (loading) return;
+    if (!user) {
       navigate("/login", { replace: true });
       return;
     }
-    const allowed = Array.isArray(expectedRole) ? expectedRole.includes(s.role) : s.role === expectedRole;
+    const allowed = Array.isArray(expectedRole) ? expectedRole.includes(user.role) : user.role === expectedRole;
     if (!allowed) {
-      // wrong portal — redirect to their home
       navigate("/login", { replace: true });
     }
-    setSession(s);
-  }, [expectedRole, navigate]);
+  }, [expectedRole, navigate, user, loading]);
 
-  if (!session) return null;
+  if (loading || !user) return null;
 
-  const visibleNav = navItems.filter((n) => !n.permission || can(session.role, n.permission));
+  const visibleNav = navItems.filter((n) => !n.permission || can(user.role, n.permission));
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/login", { replace: true });
   };
 
-  const initials = session.name.split(" ").map((n) => n[0]).slice(0, 2).join("");
+  const initials = user.name.split(" ").map((n) => n[0]).slice(0, 2).join("");
+  const displayWorkspace = user.role === "super_admin" ? workspaceName : (user.companyName ?? workspaceName);
 
   return (
     <div className="min-h-screen bg-secondary/30">
