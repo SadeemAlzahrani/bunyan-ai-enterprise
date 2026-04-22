@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Lock, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Logo from "@/components/Logo";
+import PreferenceToggles from "@/components/PreferenceToggles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +12,7 @@ import { DEMO_ACCOUNTS, getSession, login, roleHome, roleLabel } from "@/lib/aut
 
 const Login = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,10 +29,10 @@ const Login = () => {
       const s = login(email, password);
       setLoading(false);
       if (!s) {
-        toast.error("Invalid credentials. Access is by invitation only.");
+        toast.error(t("login.invalidCredentials"));
         return;
       }
-      toast.success(`Welcome, ${s.name.split(" ")[0]}`);
+      toast.success(`${t("login.welcome")} ${s.name.split(" ")[0]}`);
       navigate(roleHome(s.role), { replace: true });
     }, 400);
   };
@@ -50,51 +53,54 @@ const Login = () => {
         </div>
         <div className="relative max-w-md">
           <h2 className="font-display font-bold text-4xl leading-tight tracking-tight">
-            "Bunyan replaced six tools and three weekly meetings. Our project oversight has never been sharper."
+            {t("login.quote")}
           </h2>
           <div className="mt-6 flex items-center gap-3">
             <div className="h-11 w-11 rounded-full bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center font-display font-semibold">KR</div>
             <div>
-              <p className="font-display font-semibold">Khalid Rahman</p>
-              <p className="text-sm text-primary-foreground/60">CEO · NorthBuild Construction</p>
+              <p className="font-display font-semibold">{t("login.quoteAuthor")}</p>
+              <p className="text-sm text-primary-foreground/60">{t("login.quoteTitle")}</p>
             </div>
           </div>
         </div>
         <p className="relative text-xs text-primary-foreground/50 flex items-center gap-2">
-          <Lock className="h-3 w-3" /> Authorised access only
+          <Lock className="h-3 w-3" /> {t("login.authorisedAccess")}
         </p>
       </div>
 
       {/* Right: form */}
-      <div className="flex flex-col justify-center p-6 md:p-12">
+      <div className="flex flex-col justify-center p-6 md:p-12 relative">
+        <div className="absolute top-4 end-4">
+          <PreferenceToggles />
+        </div>
         <div className="w-full max-w-md mx-auto">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 mb-8">
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to site
+            <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("common.backToSite")}
           </Link>
           <div className="lg:hidden mb-8"><Logo /></div>
-          <h1 className="font-display font-bold text-3xl md:text-4xl tracking-tight">Sign in</h1>
-          <p className="mt-2 text-muted-foreground">Access your company workspace.</p>
+          <h1 className="font-display font-bold text-3xl md:text-4xl tracking-tight">{t("login.signIn")}</h1>
+          <p className="mt-2 text-muted-foreground">{t("login.accessSubtitle")}</p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Work email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="rounded-xl h-11" placeholder="you@company.com" />
+              <Label htmlFor="email">{t("login.workEmail")}</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="rounded-xl h-11" placeholder={t("login.emailPlaceholder")} />
             </div>
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-xs text-accent hover:underline">Forgot?</a>
+                <Label htmlFor="password">{t("login.password")}</Label>
+                <a href="#" className="text-xs text-accent hover:underline">{t("login.forgot")}</a>
               </div>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="rounded-xl h-11" />
             </div>
             <Button type="submit" disabled={loading} className="w-full h-11 rounded-full bg-gradient-accent text-accent-foreground border-0 shadow-card">
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? t("login.signingIn") : t("login.signIn")}
             </Button>
           </form>
 
           <div className="mt-8 p-5 rounded-2xl bg-secondary/60 border border-border">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Demo accounts</p>
-            <p className="text-xs text-muted-foreground mt-1">Password for all: <code className="px-1.5 py-0.5 bg-background rounded text-foreground">demo</code></p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("login.demoAccounts")}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("login.demoPassword")} <code className="px-1.5 py-0.5 bg-background rounded text-foreground">demo</code></p>
             <div className="mt-3 space-y-1.5">
               {DEMO_ACCOUNTS.map((a) => (
                 <button key={a.email} type="button" onClick={() => quickLogin(a.email)} className="w-full text-left flex items-center justify-between px-3 py-2 rounded-lg hover:bg-background transition-smooth text-xs">
@@ -106,8 +112,8 @@ const Login = () => {
           </div>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            Don't have an account? Bunyan AI is invitation-only.{" "}
-            <Link to="/contact" className="text-accent font-medium hover:underline">Contact Sales</Link>
+            {t("login.noAccount")}{" "}
+            <Link to="/contact" className="text-accent font-medium hover:underline">{t("login.contactSales")}</Link>
           </p>
         </div>
       </div>

@@ -1,79 +1,102 @@
 import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
-const tiers = [
-  {
-    name: "Growth",
-    desc: "For mid-size contractors and consulting firms.",
-    price: "Custom",
-    features: ["Up to 25 projects", "Up to 50 users", "AI evaluation engine", "Standard SLA", "Email support"],
-    highlight: false,
-  },
-  {
-    name: "Enterprise",
-    desc: "For large developers and multi-region operators.",
-    price: "Custom",
-    features: ["Unlimited projects & users", "Dedicated workspace", "SSO + SCIM", "Custom AI models", "99.9% SLA", "Dedicated CSM"],
-    highlight: true,
-  },
-  {
-    name: "Sovereign",
-    desc: "For government and regulated entities.",
-    price: "Custom",
-    features: ["In-region deployment", "Air-gapped option", "Bring-your-own-keys", "Custom DPA", "24/7 priority support"],
-    highlight: false,
-  },
-];
+const Pricing = () => {
+  const { t } = useTranslation();
+  const tiers = [
+    {
+      name: t("pricing.tiers.growthName"),
+      desc: t("pricing.tiers.growthDesc"),
+      price: t("pricing.custom"),
+      features: [
+        t("pricing.tiers.growthF1"),
+        t("pricing.tiers.growthF2"),
+        t("pricing.tiers.growthF3"),
+        t("pricing.tiers.growthF4"),
+        t("pricing.tiers.growthF5"),
+      ],
+      highlight: false,
+    },
+    {
+      name: t("pricing.tiers.enterpriseName"),
+      desc: t("pricing.tiers.enterpriseDesc"),
+      price: t("pricing.custom"),
+      features: [
+        t("pricing.tiers.enterpriseF1"),
+        t("pricing.tiers.enterpriseF2"),
+        t("pricing.tiers.enterpriseF3"),
+        t("pricing.tiers.enterpriseF4"),
+        t("pricing.tiers.enterpriseF5"),
+        t("pricing.tiers.enterpriseF6"),
+      ],
+      highlight: true,
+    },
+    {
+      name: t("pricing.tiers.sovereignName"),
+      desc: t("pricing.tiers.sovereignDesc"),
+      price: t("pricing.custom"),
+      features: [
+        t("pricing.tiers.sovereignF1"),
+        t("pricing.tiers.sovereignF2"),
+        t("pricing.tiers.sovereignF3"),
+        t("pricing.tiers.sovereignF4"),
+        t("pricing.tiers.sovereignF5"),
+      ],
+      highlight: false,
+    },
+  ];
 
-const Pricing = () => (
-  <>
-    <section className="bg-gradient-soft border-b border-border">
-      <div className="container py-20 md:py-28 text-center">
-        <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold">Pricing</span>
-        <h1 className="mt-3 font-display font-bold text-4xl md:text-6xl tracking-tight">Simple, enterprise pricing.</h1>
-        <p className="mt-5 text-muted-foreground text-lg max-w-2xl mx-auto">
-          All plans are tailored to your portfolio size, deployment region, and integration needs. No public signup, no self-serve tiers.
-        </p>
-      </div>
-    </section>
+  return (
+    <>
+      <section className="bg-gradient-soft border-b border-border">
+        <div className="container py-20 md:py-28 text-center">
+          <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold">{t("pricing.label")}</span>
+          <h1 className="mt-3 font-display font-bold text-4xl md:text-6xl tracking-tight">{t("pricing.title")}</h1>
+          <p className="mt-5 text-muted-foreground text-lg max-w-2xl mx-auto">
+            {t("pricing.desc")}
+          </p>
+        </div>
+      </section>
 
-    <section className="container py-20">
-      <div className="grid gap-6 md:grid-cols-3">
-        {tiers.map((t) => (
-          <div
-            key={t.name}
-            className={`p-8 rounded-3xl border transition-smooth ${
-              t.highlight
-                ? "border-accent bg-card shadow-elevated relative"
-                : "border-border bg-card hover:shadow-elevated"
-            }`}
-          >
-            {t.highlight && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-accent text-accent-foreground text-xs font-semibold">
-                Most popular
-              </span>
-            )}
-            <h3 className="font-display font-bold text-2xl">{t.name}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{t.desc}</p>
-            <p className="mt-6 font-display font-bold text-4xl tracking-tight">{t.price}</p>
-            <p className="text-sm text-muted-foreground">contact for quote</p>
-            <Button asChild className={`mt-6 w-full rounded-full ${t.highlight ? "bg-gradient-accent text-accent-foreground border-0" : ""}`} variant={t.highlight ? "default" : "outline"}>
-              <Link to="/contact">Contact Sales</Link>
-            </Button>
-            <ul className="mt-7 space-y-3">
-              {t.features.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm">
-                  <Check className="h-4 w-4 text-accent shrink-0 mt-0.5" />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </section>
-  </>
-);
+      <section className="container py-20">
+        <div className="grid gap-6 md:grid-cols-3">
+          {tiers.map((tier) => (
+            <div
+              key={tier.name}
+              className={`p-8 rounded-3xl border transition-smooth ${
+                tier.highlight
+                  ? "border-accent bg-card shadow-elevated relative"
+                  : "border-border bg-card hover:shadow-elevated"
+              }`}
+            >
+              {tier.highlight && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-accent text-accent-foreground text-xs font-semibold">
+                  {t("pricing.mostPopular")}
+                </span>
+              )}
+              <h3 className="font-display font-bold text-2xl">{tier.name}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">{tier.desc}</p>
+              <p className="mt-6 font-display font-bold text-4xl tracking-tight">{tier.price}</p>
+              <p className="text-sm text-muted-foreground">{t("pricing.contactQuote")}</p>
+              <Button asChild className={`mt-6 w-full rounded-full ${tier.highlight ? "bg-gradient-accent text-accent-foreground border-0" : ""}`} variant={tier.highlight ? "default" : "outline"}>
+                <Link to="/contact">{t("pricing.contactSales")}</Link>
+              </Button>
+              <ul className="mt-7 space-y-3">
+                {tier.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm">
+                    <Check className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+};
 
 export default Pricing;
