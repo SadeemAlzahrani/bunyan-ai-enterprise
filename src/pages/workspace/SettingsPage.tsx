@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { getSession } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
+import { roleLabel } from "@/lib/auth";
 import { toast } from "sonner";
 
 const SettingsPage = () => {
   const { t } = useTranslation();
-  const session = getSession();
+  const { user } = useAuth();
 
   return (
     <div className="max-w-3xl">
@@ -25,11 +26,25 @@ const SettingsPage = () => {
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="org">{t("settings.organizationName")}</Label>
-              <Input id="org" defaultValue={session?.company} className="rounded-xl h-11" />
+              <Input id="org" defaultValue={user?.companyName ?? ""} className="rounded-xl h-11" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="region">{t("settings.region")}</Label>
-              <Input id="region" defaultValue="GCC (Riyadh)" className="rounded-xl h-11" />
+              <Label htmlFor="role">{t("common.role")}</Label>
+              <Input id="role" defaultValue={user ? roleLabel(user.role) : ""} disabled className="rounded-xl h-11" />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-card border border-border rounded-2xl shadow-card p-6">
+          <h2 className="font-display font-semibold text-lg">{t("settings.organization")}</h2>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="name">{t("common.name")}</Label>
+              <Input id="name" defaultValue={user?.name ?? ""} className="rounded-xl h-11" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="email">{t("login.workEmail")}</Label>
+              <Input id="email" defaultValue={user?.email ?? ""} disabled className="rounded-xl h-11" />
             </div>
           </div>
         </section>
@@ -39,24 +54,12 @@ const SettingsPage = () => {
           <div className="mt-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">{t("settings.ssoEnabled")}</p>
-                <p className="text-xs text-muted-foreground">SAML / OIDC</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
                 <p className="font-medium">{t("settings.enforceMfa")}</p>
                 <p className="text-xs text-muted-foreground">All users must enable multi-factor authentication</p>
               </div>
               <Switch defaultChecked />
             </div>
           </div>
-        </section>
-
-        <section className="bg-card border border-border rounded-2xl shadow-card p-6">
-          <h2 className="font-display font-semibold text-lg">{t("settings.generalPreferences")}</h2>
-          <p className="text-xs text-muted-foreground mt-1">{t("common.language")} & {t("common.theme")} are configured per user via the header toggles.</p>
         </section>
 
         <div className="flex justify-end">

@@ -8,38 +8,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { DEMO_ACCOUNTS, getSession, login, roleHome, roleLabel } from "@/lib/auth";
+import { signIn, roleHome } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const s = getSession();
-    if (s) navigate(roleHome(s.role), { replace: true });
-  }, [navigate]);
+    if (user) navigate(roleHome(user.role), { replace: true });
+  }, [user, navigate]);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      const s = login(email, password);
-      setLoading(false);
-      if (!s) {
-        toast.error(t("login.invalidCredentials"));
-        return;
-      }
-      toast.success(`${t("login.welcome")} ${s.name.split(" ")[0]}`);
-      navigate(roleHome(s.role), { replace: true });
-    }, 400);
-  };
-
-  const quickLogin = (e: string) => {
-    setEmail(e);
-    setPassword("demo");
+    const { error } = await signIn(email, password);
+    setLoading(false);
+    if (error) {
+      toast.error(t("login.invalidCredentials"));
+      return;
+    }
+    toast.success(t("login.welcome"));
+    // Navigation happens via the useEffect once useAuth hydrates.
   };
 
   return (
@@ -97,19 +91,6 @@ const Login = () => {
               {loading ? t("login.signingIn") : t("login.signIn")}
             </Button>
           </form>
-
-          <div className="mt-8 p-5 rounded-2xl bg-secondary/60 border border-border">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("login.demoAccounts")}</p>
-            <p className="text-xs text-muted-foreground mt-1">{t("login.demoPassword")} <code className="px-1.5 py-0.5 bg-background rounded text-foreground">demo</code></p>
-            <div className="mt-3 space-y-1.5">
-              {DEMO_ACCOUNTS.map((a) => (
-                <button key={a.email} type="button" onClick={() => quickLogin(a.email)} className="w-full text-left flex items-center justify-between px-3 py-2 rounded-lg hover:bg-background transition-smooth text-xs">
-                  <span className="font-medium">{a.email}</span>
-                  <span className="text-accent font-medium">{roleLabel(a.role)}</span>
-                </button>
-              ))}
-            </div>
-          </div>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             {t("login.noAccount")}{" "}

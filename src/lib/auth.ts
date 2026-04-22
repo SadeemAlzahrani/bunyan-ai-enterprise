@@ -1,50 +1,20 @@
-// Mock auth store. In production this comes from Lovable Cloud (Supabase).
-// Roles are NEVER user-selectable — they're read from the stored account record.
+// Real auth backed by Supabase Auth + the existing `users` table.
+// We match the authenticated user to a row in `public.users` by email,
+// then read role and company_id from that row.
+
+import { supabase } from "@/integrations/supabase/client";
 
 export type Role = "super_admin" | "company_admin" | "project_manager" | "project_engineer";
 
-export interface Account {
-  email: string;
-  password: string; // demo only
-  name: string;
-  role: Role;
-  company: string;
-}
-
-export const DEMO_ACCOUNTS: Account[] = [
-  { email: "admin@bunyan.ai", password: "demo", name: "Sara Al-Mansouri", role: "super_admin", company: "Bunyan AI" },
-  { email: "ceo@northbuild.com", password: "demo", name: "Khalid Rahman", role: "company_admin", company: "NorthBuild Construction" },
-  { email: "pm@northbuild.com", password: "demo", name: "Layla Hassan", role: "project_manager", company: "NorthBuild Construction" },
-  { email: "eng@northbuild.com", password: "demo", name: "Omar Said", role: "project_engineer", company: "NorthBuild Construction" },
-];
-
-const KEY = "bunyan_session";
-
-export interface Session {
+export interface AppUser {
+  id: string;            // public.users.id
+  authId: string;        // auth.users.id
   email: string;
   name: string;
   role: Role;
-  company: string;
+  companyId: string | null;
+  companyName: string | null;
 }
-
-export const login = (email: string, password: string): Session | null => {
-  const acc = DEMO_ACCOUNTS.find((a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password);
-  if (!acc) return null;
-  const session: Session = { email: acc.email, name: acc.name, role: acc.role, company: acc.company };
-  localStorage.setItem(KEY, JSON.stringify(session));
-  return session;
-};
-
-export const getSession = (): Session | null => {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Session) : null;
-  } catch {
-    return null;
-  }
-};
-
-export const logout = () => localStorage.removeItem(KEY);
 
 export const roleHome = (role: Role): string => {
   switch (role) {
@@ -61,3 +31,36 @@ export const roleLabel = (role: Role): string => ({
   project_manager: "Project Manager",
   project_engineer: "Project Engineer",
 }[role]);
+
+export const signIn = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return { error: error.message };
+  if (!data.user) return { error: "No user returned" };
+  return { error: null };
+};
+
+export const signOut = async () => {
+  await supabase.auth.signOut();
+};
+
+// Lookup the matching public.users row by email and join the company name.
+export const loadAppUser = async (authId: string, email: string): Promise<AppUser | null> => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, email, full_name, role, company_id, companies(name)")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const role = data.role as Role;
+  return {
+    id: data.id,
+    authId,
+    email: data.email,
+    name: data.full_name,
+    role,
+    companyId: data.company_id,
+    companyName: (data.companies as { name: string } | null)?.name ?? null,
+  };
+};

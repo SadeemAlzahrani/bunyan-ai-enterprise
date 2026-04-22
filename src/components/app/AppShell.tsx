@@ -1,9 +1,10 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { getSession, logout, roleLabel, type Role } from "@/lib/auth";
+import { signOut, roleLabel, type Role } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 import PreferenceToggles from "@/components/PreferenceToggles";
 import {
   DropdownMenu,
@@ -27,32 +28,31 @@ interface AppShellProps {
 
 const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
   const navigate = useNavigate();
-  const [session, setSession] = useState(() => getSession());
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const s = getSession();
-    if (!s) {
+    if (loading) return;
+    if (!user) {
       navigate("/login", { replace: true });
       return;
     }
-    const allowed = Array.isArray(expectedRole) ? expectedRole.includes(s.role) : s.role === expectedRole;
+    const allowed = Array.isArray(expectedRole) ? expectedRole.includes(user.role) : user.role === expectedRole;
     if (!allowed) {
-      // wrong portal — redirect to their home
       navigate("/login", { replace: true });
     }
-    setSession(s);
-  }, [expectedRole, navigate]);
+  }, [expectedRole, navigate, user, loading]);
 
-  if (!session) return null;
+  if (loading || !user) return null;
 
-  const visibleNav = navItems.filter((n) => !n.permission || can(session.role, n.permission));
+  const visibleNav = navItems.filter((n) => !n.permission || can(user.role, n.permission));
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/login", { replace: true });
   };
 
-  const initials = session.name.split(" ").map((n) => n[0]).slice(0, 2).join("");
+  const initials = user.name.split(" ").map((n) => n[0]).slice(0, 2).join("");
+  const displayWorkspace = user.role === "super_admin" ? workspaceName : (user.companyName ?? workspaceName);
 
   return (
     <div className="min-h-screen bg-secondary/30">
@@ -63,7 +63,7 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
             <div className="hidden lg:flex items-center gap-1 text-xs">
               <span className="text-muted-foreground">Workspace</span>
               <span className="text-muted-foreground">/</span>
-              <span className="font-semibold text-foreground">{workspaceName}</span>
+              <span className="font-semibold text-foreground">{displayWorkspace}</span>
             </div>
           </div>
 
@@ -105,9 +105,9 @@ const AppShell = ({ navItems, expectedRole, workspaceName }: AppShellProps) => {
               <DropdownMenuContent align="end" className="w-64 rounded-2xl">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-semibold">{session.name}</span>
-                    <span className="text-xs text-muted-foreground">{session.email}</span>
-                    <span className="text-xs text-accent font-medium mt-1">{roleLabel(session.role)}</span>
+                    <span className="text-sm font-semibold">{user.name}</span>
+                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                    <span className="text-xs text-accent font-medium mt-1">{roleLabel(user.role)}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
