@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PageHeader from "@/components/app/PageHeader";
@@ -8,6 +8,7 @@ import { can } from "@/lib/permissions";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import InviteUserDialog from "@/components/workspace/InviteUserDialog";
 
 interface UserRow {
   id: string;
@@ -26,17 +27,32 @@ const UsersPage = () => {
   const { user } = useAuth();
   const canManage = can(user?.role, "manageUsers");
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!user) return;
-    const load = async () => {
-      let q = supabase.from("users").select("id, full_name, email, role, is_active, created_at");
-      if (user.role !== "super_admin" && user.companyId) q = q.eq("company_id", user.companyId);
-      const { data } = await q;
-      setUsers(data ?? []);
-    };
-    void load();
+    setLoading(true);
+    let q = supabase.from("users").select("id, full_name, email, role, is_active, created_at");
+    if (user.role !== "super_admin" && user.companyId) q = q.eq("company_id", user.companyId);
+    const { data, error } = await q.order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setUsers(data ?? []);
+    setLoading(false);
   }, [user]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const toggleActive = async (u: UserRow) => {
+    setPendingId(u.id);
+    const next = !u.is_active;
+    const { error } = await supabase.from("users").update({ is_active: next }).eq("id", u.id);
+    setPendingId(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success(next ? `${u.full_name} activated.` : `${u.full_name} deactivated.`);
+    setUsers((prev) => prev.map((x) => x.id === u.id ? { ...x, is_active: next } : x));
+  };
 
   return (
     <div>
@@ -45,7 +61,7 @@ const UsersPage = () => {
         title={t("users.title")}
         description={t("users.subtitle")}
         actions={canManage && (
-          <Button onClick={() => toast.success(t("users.inviteUser"))} className="rounded-full bg-gradient-accent text-accent-foreground border-0 shadow-card">
+          <Button onClick={() => setInviteOpen(true)} className="rounded-full bg-gradient-accent text-accent-foreground border-0 shadow-card">
             <Plus className="h-4 w-4 me-1.5" /> {t("users.inviteUser")}
           </Button>
         )}
@@ -88,20 +104,31 @@ const UsersPage = () => {
                   </td>
                   {canManage && (
                     <td className="px-6 py-4 text-end">
-                      <Button variant="ghost" size="sm" className="rounded-full" onClick={() => toast.success(u.is_active ? t("users.deactivate") : t("users.activate"))}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-full"
+                        disabled={pendingId === u.id || u.id === user?.id}
+                        onClick={() => toggleActive(u)}
+                      >
                         {u.is_active ? t("users.deactivate") : t("users.activate")}
                       </Button>
                     </td>
                   )}
                 </tr>
               ))}
-              {users.length === 0 && (
-                <tr><td colSpan={canManage ? 5 : 4} className="px-6 py-12 text-center text-sm text-muted-foreground">{t("users.subtitle")}</td></tr>
+              {!loading && users.length === 0 && (
+                <tr><td colSpan={canManage ? 5 : 4} className="px-6 py-12 text-center text-sm text-muted-foreground">No users yet.</td></tr>
+              )}
+              {loading && (
+                <tr><td colSpan={canManage ? 5 : 4} className="px-6 py-12 text-center text-sm text-muted-foreground">Loading…</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      <InviteUserDialog open={inviteOpen} onOpenChange={setInviteOpen} onCreated={load} />
     </div>
   );
 };
