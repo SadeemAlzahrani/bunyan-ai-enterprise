@@ -25,11 +25,13 @@ import WorkspaceDashboard from "@/pages/workspace/WorkspaceDashboard";
 import WorkspaceUsersPage from "@/pages/workspace/UsersPage";
 import WorkspaceProjectsPage from "@/pages/workspace/ProjectsPage";
 import WorkspaceContractsPage from "@/pages/workspace/ContractsPage";
+import ContractDetailsPage from "./pages/workspace/ContractDetailsPage";
 import WorkspaceIssuesPage from "@/pages/workspace/IssuesPage";
 import WorkspaceReportsPage from "@/pages/workspace/ReportsPage";
 import WorkspaceSettingsPage from "@/pages/workspace/SettingsPage";
 
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
@@ -99,6 +101,7 @@ const App = () => (
             <Route path="/workspace/users" element={<WorkspaceUsersPage />} />
             <Route path="/workspace/projects" element={<WorkspaceProjectsPage />} />
             <Route path="/workspace/contracts" element={<WorkspaceContractsPage />} />
+            <Route path="/workspace/contracts/:id" element={<ContractDetailsPage />} />
             <Route path="/workspace/issues" element={<WorkspaceIssuesPage />} />
             <Route path="/workspace/reports" element={<WorkspaceReportsPage />} />
             <Route path="/workspace/settings" element={<WorkspaceSettingsPage />} />

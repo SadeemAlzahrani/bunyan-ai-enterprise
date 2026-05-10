@@ -8,20 +8,23 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import UploadContractDialog from "@/components/workspace/UploadContractDialog";
+import { useNavigate } from "react-router-dom";
 
 interface Contract {
   id: string;
-  contract_name: string;
-  contract_status: string | null;
-  upload_date: string | null;
+  contract_title: string | null;
+  uploaded_at: string | null;
   project_id: string;
   file_url: string | null;
+  completeness_score: number | null;
+  ai_analysis: any;
   projectName?: string;
 }
 
 const ContractsPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const canUpload = can(user?.role, "uploadContract");
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,11 +41,15 @@ const ContractsPage = () => {
     if (!projectIds.length) { setContracts([]); setLoading(false); return; }
 
     const { data } = await supabase.from("contracts")
-      .select("id, contract_name, contract_status, upload_date, project_id, file_url")
-      .in("project_id", projectIds)
-      .order("upload_date", { ascending: false });
+      .select("id, contract_title, uploaded_at, project_id, file_url, completeness_score, ai_analysis")      .in("project_id", projectIds)
+      .order("uploaded_at", { ascending: false });
 
-    setContracts((data ?? []).map((c) => ({ ...c, projectName: projectMap.get(c.project_id) ?? "—" })));
+    setContracts(
+  ((data ?? []) as any[]).map((c) => ({
+    ...c,
+    projectName: projectMap.get(c.project_id) ?? "—",
+  }))
+);
     setLoading(false);
   }, [user]);
 
@@ -64,6 +71,7 @@ const ContractsPage = () => {
     s === "analyzing" ? "bg-accent-soft text-accent" :
     "bg-muted text-muted-foreground";
 
+    
   return (
     <div>
       <PageHeader
@@ -86,18 +94,28 @@ const ContractsPage = () => {
                   <FileText className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{c.contract_name}</p>
+                  <p className="font-medium truncate">{c.contract_title}</p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {c.projectName} · {c.upload_date ? new Date(c.upload_date).toLocaleDateString() : "—"}
+                    {c.projectName} · {c.uploaded_at ? new Date(c.uploaded_at).toLocaleDateString() : "—"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-4 shrink-0">
-                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle(c.contract_status)}`}>
-                  {t(statusKey(c.contract_status))}
-                </span>
-                <Button variant="ghost" size="sm" className="rounded-full" onClick={() => handleView(c)}>{t("common.view")}</Button>
-              </div>
+
+  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-success/15 text-success">
+    Analyzed
+  </span>
+
+  <Button
+    variant="ghost"
+    size="sm"
+    className="rounded-full"
+    onClick={() => navigate(`/workspace/contracts/${c.id}`)}
+  >
+    View Analysis
+  </Button>
+
+</div>
             </li>
           ))}
           {!loading && contracts.length === 0 && (

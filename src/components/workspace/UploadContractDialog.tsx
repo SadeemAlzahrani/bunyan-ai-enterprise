@@ -42,43 +42,73 @@ const UploadContractDialog = ({ open, onOpenChange, onUploaded }: Props) => {
   const reset = () => { setContractName(""); setFile(null); };
 
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!contractName || !projectId) { toast.error("Name and project are required."); return; }
-    setSubmitting(true);
-    try {
-      let fileUrl: string | null = null;
-      let fileName: string | null = null;
+  e.preventDefault();
 
-      if (file) {
-        const path = `${projectId}/${Date.now()}-${file.name}`;
-        const { error: upErr } = await supabase.storage.from("contracts").upload(path, file, { upsert: false });
-        if (upErr) throw upErr;
-        fileUrl = path;
-        fileName = file.name;
-      }
+  if (!contractName || !projectId) {
+    toast.error("Name and project are required.");
+    return;
+  }
 
-      const { error } = await supabase.from("contracts").insert({
-        contract_name: contractName,
-        project_id: projectId,
-        contract_status: "uploaded",
-        file_url: fileUrl,
-        file_name: fileName,
-        uploaded_by: user?.id ?? null,
-        upload_date: new Date().toISOString(),
-        version_number: 1,
-      });
-      if (error) throw error;
+  if (!file) {
+    toast.error("Please attach a contract file.");
+    return;
+  }
 
-      toast.success(`Contract "${contractName}" uploaded.`);
-      reset();
-      onOpenChange(false);
-      onUploaded();
-    } catch (err) {
-      toast.error((err as Error).message || "Upload failed.");
-    } finally {
-      setSubmitting(false);
+  setSubmitting(true);
+
+  try {
+    let fileUrl: string | null = null;
+    let aiAnalysis = null;
+    let completenessScore = null;
+
+    const path = `${projectId}/${Date.now()}-${file.name}`;
+
+    const { error: upErr } = await supabase.storage
+      .from("contracts")
+      .upload(path, file, { upsert: false });
+
+    if (upErr) throw upErr;
+
+    fileUrl = path;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("http://127.0.0.1:5000/api/analyze-contract", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || "AI analysis failed.");
     }
-  };
+
+    aiAnalysis = result.analysis;
+    completenessScore = result.analysis?.completeness_score ?? null;
+
+const { error } = await (supabase.from("contracts") as any).insert({
+  contract_title: contractName,
+  project_id: projectId,
+  file_url: fileUrl,
+  uploaded_at: new Date().toISOString(),
+  completeness_score: completenessScore,
+  ai_analysis: aiAnalysis,
+});
+
+    if (error) throw error;
+
+    toast.success(`Contract "${contractName}" uploaded and analyzed.`);
+    reset();
+    onOpenChange(false);
+    onUploaded();
+  } catch (err) {
+    toast.error((err as Error).message || "Upload failed.");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

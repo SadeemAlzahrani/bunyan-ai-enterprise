@@ -14,13 +14,14 @@ type Filter = "all" | "high" | "medium" | "low";
 
 interface Issue {
   id: string;
-  issue_title: string;
+  feedback_text: string;
   priority: string | null;
-  issue_status: string | null;
+  ai_status: string | null;
   project_id: string;
-  assigned_to: string | null;
+
+  category: string | null;
+
   projectName?: string;
-  assigneeName?: string;
 }
 
 const priorityKey = (p: string | null) => {
@@ -68,27 +69,28 @@ const IssuesPage = () => {
     const projectMap = new Map((projects ?? []).map((p) => [p.id, p.project_name]));
     if (!projectIds.length) { setIssues([]); setLoading(false); return; }
 
-    let q = supabase.from("issues")
-      .select("id, issue_title, priority, issue_status, project_id, assigned_to")
-      .in("project_id", projectIds)
-      .order("created_at", { ascending: false });
+    let q = (supabase.from("feedback") as any)
+  .select(`
+    id,
+    feedback_text,
+    priority,
+    ai_status,
+    project_id,
+    category
+  `)
+  .in("project_id", projectIds)
+  .order("created_at", { ascending: false });
 
-    if (user.role === "project_engineer") q = q.eq("assigned_to", user.id);
+const { data } = await q;
 
-    const { data } = await q;
-    const rows = data ?? [];
-    const assigneeIds = Array.from(new Set(rows.map((i) => i.assigned_to).filter(Boolean) as string[]));
-    let assigneeMap = new Map<string, string>();
-    if (assigneeIds.length) {
-      const { data: us } = await supabase.from("users").select("id, full_name").in("id", assigneeIds);
-      assigneeMap = new Map((us ?? []).map((u) => [u.id, u.full_name]));
-    }
+const rows = data ?? [];
 
-    setIssues(rows.map((i) => ({
-      ...i,
-      projectName: projectMap.get(i.project_id) ?? "—",
-      assigneeName: i.assigned_to ? (assigneeMap.get(i.assigned_to) ?? "—") : "—",
-    })));
+setIssues(
+  rows.map((i: any) => ({
+    ...i,
+    projectName: projectMap.get(i.project_id) ?? "—",
+  }))
+);
     setLoading(false);
   }, [user]);
 
@@ -149,13 +151,14 @@ const IssuesPage = () => {
         <ul className="divide-y divide-border">
           {filtered.map((i) => {
             const pk = priorityKey(i.priority);
-            const sk = statusKey(i.issue_status);
+            const sk = statusKey(i.ai_status);
             return (
               <li key={i.id} className="px-6 py-4 flex flex-wrap items-center justify-between gap-3 hover:bg-secondary/30 transition-smooth">
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium truncate">{i.issue_title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{i.projectName} · {i.assigneeName}</p>
-                </div>
+                  <p className="font-medium truncate">{i.feedback_text?.split("\n")[0]}</p>
+<p className="text-xs text-muted-foreground mt-0.5">
+  {i.projectName} · {i.category ?? "General"}
+</p>                </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${priorityStyle(pk)}`}>{t(`common.${pk}`)}</span>
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle(sk)}`}>{t(`common.${sk}`)}</span>
